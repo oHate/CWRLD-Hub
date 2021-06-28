@@ -1,0 +1,7 @@
+name: Hub
+version: ${project.version}
+api-version: 1.13
+authors: [oHate]
+main: com.customwrld.hub.Hub
+load: POSTWORLD
+description: Hub for CUSTOMWRLD
