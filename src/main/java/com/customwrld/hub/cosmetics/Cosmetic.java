@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.customwrld.hub.Hub;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class Cosmetic implements Listener {
     public void unselectCosmetic(Player player) {
-        player.sendMessage(getDisplayName());
         Hub.get().getCosmeticHandler().getPlayer(player).getSelectedCosmetics().removeIf(cosmetic -> cosmetic.equals(this));
     }
 
@@ -32,7 +32,7 @@ public abstract class Cosmetic implements Listener {
 
     public abstract String getName();
 
-    public abstract String getDisplayName();
+    public abstract Component getDisplayName();
 
     public abstract CosmeticType getCosmeticType();
 

@@ -6,6 +6,7 @@ import com.customwrld.customlib.util.InventoryUtil;
 import com.customwrld.customlib.util.ServerUtil;
 import com.customwrld.hub.Hub;
 import com.customwrld.hub.listeners.events.NPCInteractEvent;
+import com.customwrld.hub.menus.CosmeticMenu;
 import com.customwrld.hub.menus.ServerSelectorMenu;
 import com.customwrld.hub.util.Util;
 import org.bukkit.*;
@@ -80,7 +81,7 @@ public class HubListeners implements Listener {
 
                 if (InventoryUtil.isSimilar(event.getItem(), Util.COSMETIC_SELECTOR)) {
                     event.setCancelled(true);
-//                    new CosmeticMenu(player);
+                    new CosmeticMenu(player);
                 }
             }
         }

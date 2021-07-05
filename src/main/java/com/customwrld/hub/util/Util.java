@@ -1,11 +1,12 @@
 package com.customwrld.hub.util;
 
 import com.customwrld.customlib.util.ItemFactory;
-import com.customwrld.customlib.util.MC;
+import com.customwrld.commonlib.util.MC;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
@@ -248,6 +249,7 @@ public class Util {
                             .decoration(TextDecoration.ITALIC, false)
                             .build()
             )
+            .addFlags(ItemFlag.HIDE_ATTRIBUTES)
             .build();
 
     public static final ItemStack SKYBLOCK_ITEM = new ItemFactory(Material.OAK_SAPLING)

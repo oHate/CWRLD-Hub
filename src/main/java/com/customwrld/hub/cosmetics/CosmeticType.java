@@ -1,41 +1,35 @@
 package com.customwrld.hub.cosmetics;
 
-import java.beans.ConstructorProperties;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.hub.Hub;
+import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 
+@Getter
 public enum CosmeticType {
-    ARMOR("Armor", "&b&lArmor Cosmetics", Material.DIAMOND_CHESTPLATE),
-    PETS("Pets", "&a&lPet Cosmetics", Material.BONE),
-    GADGET("Gadgets", "&3&lGadget Cosmetics", Material.IRON_HORSE_ARMOR),
-    PARTICLE("Particles", "&c&lParticle", Material.BLAZE_POWDER);
-
-    @ConstructorProperties({"name", "displayName", "icon"})
-    CosmeticType(String name, String displayName, Material icon) {
-        this.name = name;
-        this.displayName = displayName;
-        this.icon = icon;
-    }
+    ARMOR("Armor", Component.text("Armor", MC.CC.GREEN.getTextColor())
+            .decoration(TextDecoration.ITALIC, false), Material.DIAMOND_CHESTPLATE),
+    PARTICLE("Particles", Component.text("Particles", MC.CC.GREEN.getTextColor())
+            .decoration(TextDecoration.ITALIC, false), Material.BLAZE_POWDER),
+    GADGET("Gadgets", Component.text("Gadgets", MC.CC.GREEN.getTextColor())
+            .decoration(TextDecoration.ITALIC, false), Material.IRON_HORSE_ARMOR),
+    PET("Pets", Component.text("Pets", MC.CC.GREEN.getTextColor())
+            .decoration(TextDecoration.ITALIC, false), Material.BONE);
 
     private final String name;
-
-    private final String displayName;
-
+    private final Component display;
     private final Material icon;
 
-    public String getName() {
-        return this.displayName;
-    }
 
-    public String getDisplayName() {
-        return this.displayName;
-    }
-
-    public Material getIcon() {
-        return this.icon;
+    CosmeticType(String name, Component display, Material icon) {
+        this.name = name;
+        this.display = display;
+        this.icon = icon;
     }
 
     public List<Cosmetic> getCosmetics() {

@@ -33,13 +33,14 @@ public class CosmeticHandler implements Runnable, Listener {
             for (Class<?> aClass : ClassUtils.getClassesInPackage(Hub.class, "com.customwrld.hub.cosmetics.types")) {
                 if (!Cosmetic.class.isAssignableFrom(aClass))
                     continue;
-                Cosmetic cosmetic = (Cosmetic)aClass.newInstance();
+                Cosmetic cosmetic = (Cosmetic) aClass.getDeclaredConstructor().newInstance();
                 this.cosmetics.add(cosmetic);
                 Bukkit.getPluginManager().registerEvents(cosmetic, (Hub.get()));
             }
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+
         Bukkit.getPluginManager().registerEvents(this, Hub.get());
         Bukkit.getScheduler().runTaskTimer(Hub.get(), this, 0L, 1L);
     }
@@ -48,21 +49,13 @@ public class CosmeticHandler implements Runnable, Listener {
         this.cosmeticPlayers.forEach(cosmeticPlayer -> cosmeticPlayer.getSelectedCosmetics().forEach(cosmetic -> cosmetic.tick(Bukkit.getPlayer(cosmeticPlayer.getUuid()))));
     }
 
-
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         this.cosmeticPlayers.add(new CosmeticPlayer(event.getPlayer().getUniqueId()));
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        CosmeticPlayer cosmeticPlayer = getPlayer(event.getPlayer());
-        cosmeticPlayer.getSelectedCosmetics().forEach(cosmetic -> cosmetic.remove(event.getPlayer()));
-        this.cosmeticPlayers.remove(cosmeticPlayer);
-    }
-
-    @EventHandler
-    public void onKick(PlayerKickEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         CosmeticPlayer cosmeticPlayer = getPlayer(event.getPlayer());
         cosmeticPlayer.getSelectedCosmetics().forEach(cosmetic -> cosmetic.remove(event.getPlayer()));
         this.cosmeticPlayers.remove(cosmeticPlayer);

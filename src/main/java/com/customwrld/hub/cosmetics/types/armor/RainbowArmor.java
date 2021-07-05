@@ -7,15 +7,19 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.customwrld.hub.cosmetics.CosmeticType;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-public class RainbowArmorCosmetic extends Cosmetic {
+public class RainbowArmor extends Cosmetic {
     private static final List<Color> colorList = Arrays.asList(
             Color.fromRGB(255, 0, 0),
             Color.fromRGB(255, 68, 0),
@@ -53,7 +57,7 @@ public class RainbowArmorCosmetic extends Cosmetic {
 
     static int lastSelected = 1;
 
-    public RainbowArmorCosmetic() {
+    public RainbowArmor() {
         Bukkit.getScheduler().runTaskTimer(Hub.get(), () -> {
             if (lastSelected >= colorList.size() - 1) {
                 lastSelected = 0;
@@ -67,8 +71,8 @@ public class RainbowArmorCosmetic extends Cosmetic {
         return "Rainbow Armor";
     }
 
-    public String getDisplayName() {
-        return "Rainbow Armor";
+    public Component getDisplayName() {
+        return Component.text("Rainbow Armor", TextColor.color(getColor().asRGB()));
     }
 
     public CosmeticType getCosmeticType() {
@@ -76,16 +80,17 @@ public class RainbowArmorCosmetic extends Cosmetic {
     }
 
     public boolean hasPermission(Player player) {
-        return player.hasPermission("hub.rainbowarmor");
+        return player.hasPermission("hub.armor.rainbow");
     }
 
     public List<String> getDescription() {
-        return Arrays.asList(ChatColor.WHITE + "Stand out from the crowd and look", ChatColor.WHITE + "snazzy with your rainbow armor!");
+        return null;
     }
 
     public ItemStack getIcon() {
         return new ItemFactory(Material.LEATHER_CHESTPLATE)
                 .setLeatherColor(getColor())
+                .addFlags(ItemFlag.HIDE_ATTRIBUTES)
                 .build();
     }
 
@@ -95,10 +100,12 @@ public class RainbowArmorCosmetic extends Cosmetic {
         if (player == null || !player.isOnline())
             return;
         Color color = getColor();
+
         ItemStack helmet = getColorArmor(Material.LEATHER_HELMET, color);
         ItemStack chestplate = getColorArmor(Material.LEATHER_CHESTPLATE, color);
         ItemStack leggings = getColorArmor(Material.LEATHER_LEGGINGS, color);
         ItemStack boots = getColorArmor(Material.LEATHER_BOOTS, color);
+
         player.getInventory().setHelmet(helmet);
         player.getInventory().setChestplate(chestplate);
         player.getInventory().setLeggings(leggings);
@@ -120,11 +127,13 @@ public class RainbowArmorCosmetic extends Cosmetic {
         return colorList.get(lastSelected);
     }
 
-    public ItemStack getColorArmor(Material m, Color c) {
-        ItemStack i = new ItemStack(m, 1);
-        LeatherArmorMeta meta = (LeatherArmorMeta)i.getItemMeta();
-        meta.setColor(c);
-        i.setItemMeta(meta);
-        return i;
+    public ItemStack getColorArmor(Material material, Color color) {
+
+        return new ItemFactory(material)
+                .setName(Component.text("Rainbow Armor", TextColor.color(color.asRGB()))
+                        .decoration(TextDecoration.ITALIC, false))
+                .setLeatherColor(color)
+                .addFlags(ItemFlag.HIDE_ATTRIBUTES)
+                .build();
     }
 }

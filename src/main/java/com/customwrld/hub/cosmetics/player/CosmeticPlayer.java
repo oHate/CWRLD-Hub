@@ -33,7 +33,6 @@ public class CosmeticPlayer {
     }
 
     public void selectCosmetic(Cosmetic cosmetic) {
-        getPlayer().sendMessage(cosmetic.getDisplayName());
         cosmetic.apply(getPlayer());
         this.selectedCosmetics.add(cosmetic);
     }
