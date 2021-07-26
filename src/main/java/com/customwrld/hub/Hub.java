@@ -1,29 +1,34 @@
 package com.customwrld.hub;
 
 import com.customwrld.hub.cosmetics.CosmeticHandler;
+import com.customwrld.hub.util.Visibility;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 
+@Getter
 public class Hub extends JavaPlugin {
 
     private static Hub hub;
 
-    @Getter private LinkedHashSet<NettyInject> nettyUsers;
-    @Getter private Executor executor;
-    @Getter @Setter private Location spawn;
-    @Getter private CosmeticHandler cosmeticHandler;
+    private Map<UUID, Integer> visibilityMap;
+    private LinkedHashSet<NettyInject> nettyUsers;
+    @Setter private Location spawn;
+    private CosmeticHandler cosmeticHandler;
 
     @Override
     public void onEnable() {
         hub = this;
+        visibilityMap = new HashMap<>();
         nettyUsers = new LinkedHashSet<>();
-        executor = r -> this.getServer().getScheduler().scheduleSyncDelayedTask(this, r, 20 * (2));
         Initialize.init(hub);
         (this.cosmeticHandler = new CosmeticHandler()).setup();
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");

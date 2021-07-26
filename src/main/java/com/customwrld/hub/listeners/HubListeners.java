@@ -1,30 +1,30 @@
 package com.customwrld.hub.listeners;
 
-import com.customwrld.customlib.CustomLib;
-import com.customwrld.customlib.npc.NPC;
-import com.customwrld.customlib.util.InventoryUtil;
-import com.customwrld.customlib.util.ServerUtil;
+import com.customwrld.commonlib.util.MC;
 import com.customwrld.hub.Hub;
 import com.customwrld.hub.listeners.events.NPCInteractEvent;
 import com.customwrld.hub.menus.CosmeticMenu;
 import com.customwrld.hub.menus.ServerSelectorMenu;
-import com.customwrld.hub.util.Util;
+import com.customwrld.hub.util.CyclicIterator;
+import com.customwrld.hub.util.ItemUtil;
+import com.customwrld.hub.util.Visibility;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 public class HubListeners implements Listener {
@@ -46,11 +46,11 @@ public class HubListeners implements Listener {
 
     @EventHandler
     public void onNPCInteract(NPCInteractEvent event) {
-        Player player = event.getPlayer();
-        NPC npc = event.getNPC();
-
-        System.out.println("Interact Event: " + npc.server + " by " + player.getName());
-
+//        Player player = event.getPlayer();
+//        NPC npc = event.getNPC();
+//
+//        System.out.println("Interact Event: " + npc.metadata.get("server") + " by " + player.getName());
+//
 //        ByteArrayOutputStream b = new ByteArrayOutputStream();
 //        DataOutputStream out = new DataOutputStream(b);
 //
@@ -66,22 +66,44 @@ public class HubListeners implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        Hub hub = Hub.get();
         Player player = event.getPlayer();
+        Inventory inventory = player.getInventory();
 
         if (!(player.getGameMode() == GameMode.CREATIVE && player.hasPermission("hub.interact"))) {
             event.setCancelled(true);
         }
 
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
-            if (event.getItem() != null && event.getHand() == EquipmentSlot.HAND) {
-                if (InventoryUtil.isSimilar(event.getItem(), Util.SERVER_SELECTOR)) {
+        if (event.getItem() != null && event.getHand() == EquipmentSlot.HAND && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+            switch (event.getItem().getType()) {
+                case CLOCK -> {
                     event.setCancelled(true);
                     new ServerSelectorMenu(player);
                 }
-
-                if (InventoryUtil.isSimilar(event.getItem(), Util.COSMETIC_SELECTOR)) {
+                case EMERALD, PLAYER_HEAD -> {
+                    player.sendMessage(Component.text("This item is currently under development.", MC.CC.RED.getTextColor()));
+                    player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1F, 0.5F);
+                    event.setCancelled(true);
+                }
+                case BEACON -> {
                     event.setCancelled(true);
                     new CosmeticMenu(player);
+                }
+                case FIREWORK_STAR -> {
+                    UUID uuid = player.getUniqueId();
+
+                    Map<UUID, Integer> visibilityMap = hub.getVisibilityMap();
+
+                    Integer index = visibilityMap.get(uuid);
+
+                    Visibility visibility = new CyclicIterator<>(Visibility.values(), index).next();
+
+                    visibilityMap.put(uuid, visibility.ordinal());
+
+                    player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1F, 2F);
+                    inventory.setItem(8, visibility.getItemStack());
+
+                    // TODO: Visibility Code
                 }
             }
         }
@@ -97,7 +119,7 @@ public class HubListeners implements Listener {
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         player.teleport(Hub.get().getSpawn());
-        Util.setItems(player);
+        ItemUtil.setItems(player);
     }
 
     @EventHandler
@@ -135,39 +157,68 @@ public class HubListeners implements Listener {
 
         Hub.get().setupNetty(player);
 
-//        player.sendTitle(CC.RGB(252, 115, 0) + CC.BOLD + "MineTale", CC.YELLOW + "Welcome, " + player.getName() + "!", 20, 80, 20);
+        // TODO: LOAD FROM PROFILE GAMEMODE STORAGE
 
-        Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
-            if(onlinePlayer != player && Util.toggledVisibility.contains(onlinePlayer.getUniqueId())) {
-                ServerUtil.hidePlayer(player, onlinePlayer);
-            }
-        });
+        Integer playerVisibility = Visibility.ALL.ordinal();
+        Hub.get().getVisibilityMap().put(player.getUniqueId(), playerVisibility);
 
-//        Arrays.asList(CC.CHAT_BAR,
-//                "",
-//                "&eWelcome to the &6&lMineTale Network",
-//                "",
-//                "&8&l\u00BB &6Website: &eminetale.cc",
-//                "&8&l\u00BB &6Store: &estore.minetale.cc",
-//                "&8&l\u00BB &6Twitter: &ehttps://twitter.com/MineTaleCC",
-//                "",
-//                "&6You are currently connected to " + mLib.get().getServerName(),
-//                CC.CHAT_BAR).forEach(message -> player.sendMessage(CC.translate(message)));
+//        for(Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+//            // TODO THIS
+//        }
+
+//        Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
+//            if(onlinePlayer != player && ItemUtil.toggledVisibility.contains(onlinePlayer.getUniqueId())) {
+//                ServerUtil.hidePlayer(player, onlinePlayer);
+//            }
+//        });
+
+        player.sendMessage(MC.Style.SEPARATOR);
+        player.sendMessage(Component.empty());
+        player.sendMessage(Component.text()
+                .append(Component.text("Welcome to the ", MC.CC.BRAND_LIGHT.getTextColor()))
+                .append(Component.text("CUSTOMWRLD Network", MC.CC.BRAND.getTextColor(), TextDecoration.BOLD)));
+        player.sendMessage(Component.empty());
+        player.sendMessage(Component.text()
+                .append(Component.text("\u00BB ", MC.CC.DARK_GRAY.getTextColor(), TextDecoration.BOLD))
+                .append(Component.text("Website: ", MC.CC.BRAND_LIGHT.getTextColor()))
+                .append(Component.text("https://customwrld.com", MC.CC.WHITE.getTextColor())));
+        player.sendMessage(Component.text()
+                .append(Component.text("\u00BB ", MC.CC.DARK_GRAY.getTextColor(), TextDecoration.BOLD))
+                .append(Component.text("Store: ", MC.CC.BRAND_LIGHT.getTextColor()))
+                .append(Component.text("https://store.customwrld.com", MC.CC.WHITE.getTextColor())));
+        player.sendMessage(Component.text()
+                .append(Component.text("\u00BB ", MC.CC.DARK_GRAY.getTextColor(), TextDecoration.BOLD))
+                .append(Component.text("Discord: ", MC.CC.BRAND_LIGHT.getTextColor()))
+                .append(Component.text("https://discord.customwrld.com", MC.CC.WHITE.getTextColor())));
+        player.sendMessage(Component.text()
+                .append(Component.text("\u00BB ", MC.CC.DARK_GRAY.getTextColor(), TextDecoration.BOLD))
+                .append(Component.text("Twitter: ", MC.CC.BRAND_LIGHT.getTextColor()))
+                .append(Component.text("https://twitter.com/customwrldcom", MC.CC.WHITE.getTextColor())));
+        player.sendMessage(Component.empty());
+        player.sendMessage(MC.Style.SEPARATOR);
+
+        player.setGameMode(GameMode.ADVENTURE);
 
         player.getInventory().clear();
         player.getActivePotionEffects().clear();
 
+        player.setFoodLevel(20);
+        player.setHealth(20);
+        player.setExp(0);
+        player.setLevel(0);
+
         player.teleport(Hub.get().getSpawn());
-        Util.setItems(player);
-        player.setGameMode(GameMode.ADVENTURE);
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 4));
+
+        ItemUtil.setItems(player);
+
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        Util.toggledSpeed.remove(uuid);
-        Util.toggledVisibility.remove(uuid);
+        Hub.get().getVisibilityMap().remove(uuid);
     }
+
 }

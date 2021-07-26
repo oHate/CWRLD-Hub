@@ -3,7 +3,7 @@ package com.customwrld.hub;
 import com.customwrld.customlib.CustomLib;
 import com.customwrld.customlib.cache.ClazzCache;
 import com.customwrld.hub.listeners.events.NPCInteractEvent;
-import com.customwrld.hub.util.Util;
+import com.customwrld.hub.util.ItemUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
@@ -43,8 +43,8 @@ public class NettyInject {
                 protected void decode(ChannelHandlerContext chc, Object packet, List<Object> out) throws Exception {
                     out.add(packet);
                     if (packet.getClass() == ClazzCache.PACKET_PLAY_IN_USE_ENTITY_CLASS.getCacheClass()) {
-                        if (!Util.getValue(packet, "action").toString().equalsIgnoreCase("INTERACT") ||
-                                !Util.getValue(packet, "d").toString().equalsIgnoreCase("MAIN_HAND")) return;
+                        if (!ItemUtil.getValue(packet, "action").toString().equalsIgnoreCase("INTERACT") ||
+                                !ItemUtil.getValue(packet, "d").toString().equalsIgnoreCase("MAIN_HAND")) return;
 
                         int entityId = (int) idField.get(packet);
                         CustomLib.getCustomLib().getNpcs().stream().filter(npc1 -> npc1.entityId == entityId).findFirst().ifPresent(npc -> executor.execute(() -> Bukkit.getServer().getPluginManager().callEvent(new NPCInteractEvent(player, npc))));

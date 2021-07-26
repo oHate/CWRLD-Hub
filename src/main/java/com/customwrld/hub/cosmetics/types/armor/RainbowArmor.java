@@ -90,7 +90,7 @@ public class RainbowArmor extends Cosmetic {
     public ItemStack getIcon() {
         return new ItemFactory(Material.LEATHER_CHESTPLATE)
                 .setLeatherColor(getColor())
-                .addFlags(ItemFlag.HIDE_ATTRIBUTES)
+                .addFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DYE)
                 .build();
     }
 
@@ -128,12 +128,11 @@ public class RainbowArmor extends Cosmetic {
     }
 
     public ItemStack getColorArmor(Material material, Color color) {
-
         return new ItemFactory(material)
                 .setName(Component.text("Rainbow Armor", TextColor.color(color.asRGB()))
                         .decoration(TextDecoration.ITALIC, false))
                 .setLeatherColor(color)
-                .addFlags(ItemFlag.HIDE_ATTRIBUTES)
+                .addFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DYE)
                 .build();
     }
 }

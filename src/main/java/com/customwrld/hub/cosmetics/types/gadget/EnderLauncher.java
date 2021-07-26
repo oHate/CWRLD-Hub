@@ -1,11 +1,9 @@
 package com.customwrld.hub.cosmetics.types.gadget;
 
-import com.customwrld.customlib.util.InventoryUtil;
 import com.customwrld.customlib.util.ItemFactory;
 import com.customwrld.commonlib.util.MC;
 import com.customwrld.hub.cosmetics.Cosmetic;
 import com.customwrld.hub.cosmetics.CosmeticType;
-import com.customwrld.hub.util.Util;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
